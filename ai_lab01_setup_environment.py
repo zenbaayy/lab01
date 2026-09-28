@@ -53,6 +53,41 @@ def buggy_integer_division(c):
     return c * (9 // 5) + 32          # 9 // 5 == 1  -> WRONG on purpose
 
 # ---------------- TASK 3 : comparison (timing is REAL, measured here) ----------
+# ---------------- TESTS (pytest-compatible, also run manually below) ----------
+# Checks that both converters give correct answers for known values:
+# 100C = 212F, 0C = 32F, -40C = -40F, 37C = about 98.6F
+def test_known_conversions():
+    for fn in (celsius_to_fahrenheit_by_hand, celsius_to_fahrenheit_ai):
+        assert fn(100) == 212
+        assert fn(0) == 32
+        assert fn(-40) == -40
+        assert abs(fn(37) - 98.6) < 1e-9   # tiny tolerance because decimals are not exact
+
+
+# Shows the buggy version is caught: 100C must be 212F,
+# but the buggy function gives a different answer, so the bug is detected
+def test_bug_is_detected_by_known_value():
+    assert buggy_integer_division(100) != 212      # 100C should be 212F -> bug caught
+
+
+# Checks input handling: valid text becomes a number,
+# while invalid or empty text gives None
+def test_ai_input_validation():
+    assert parse_celsius("36.6") == 36.6
+    assert parse_celsius("abc") is None
+    assert parse_celsius("") is None
+
+
+# Runs each test one by one and prints PASS if it works or FAIL if an assert fails
+def run_tests():
+    banner("TESTS")
+    for t in (test_known_conversions, test_bug_is_detected_by_known_value,
+              test_ai_input_validation):
+        try:
+            t()
+            print("PASS:", t.__name__)
+        except AssertionError as e:
+            print("FAIL:", t.__name__, e)
 # Compares the hand-written, AI, and buggy versions side by side,
 # then shows how each handles bad input, then measures speed
 def compare():
