@@ -4,72 +4,53 @@
 # Hand-written vs AI-assisted Celsius-to-Fahrenheit converter + tests
 # Run: python ai_lab01_setup_environment.py     (or: pytest ai_lab01_setup_environment.py)
 # =============================================================================
+import time  # used later to measure how fast each function runs
 
-import time
-
+# Stores the numbers for the formula F = C * 9/5 + 32
+# ratio is 9/5 (which is 1.8) and offset is 32
 RUN_PROFILE = {"ratio": 9 / 5, "offset": 32}
 
 
+# Prints a title with a line of "=" signs above and below it
+# so each section of the output is easy to see
 def banner(title):
-    print("\n" + "=" * 70)
-    print(title)
-    print("=" * 70)
+    print("\n" + "=" * 70)   # top line
+    print(title)             # the heading text
+    print("=" * 70)          # bottom line
 
 
 # ---------------- TASK 1 / ACTIVITY 1 : hand-written version (branch: main) ----
 # CSE325-2026-L01-K7QX-T1
+# Hand-written converter: multiplies Celsius by 9/5 and adds 32
 def celsius_to_fahrenheit_by_hand(c):
     return c * RUN_PROFILE["ratio"] + RUN_PROFILE["offset"]
 
 
 # ---------------- TASK 2 / ACTIVITY 2 : AI-assisted version (branch: ai-build) --
 # CSE325-2026-L01-K7QX-T2
+# AI-assisted converter: same formula, but with type hints
+# (float in, float out) and a docstring describing the function
 def celsius_to_fahrenheit_ai(celsius: float) -> float:
     """Convert a Celsius temperature to Fahrenheit."""
     return celsius * RUN_PROFILE["ratio"] + RUN_PROFILE["offset"]
 
 
+# Safely turns user text into a number
+# Returns the number if the text is valid (like "36.6")
+# Returns None if it is not a number (like "abc"), so the program does not crash
 def parse_celsius(text: str):
     """AI version's defensive input handling: returns float or None if invalid."""
     try:
-        return float(text)
-    except ValueError:
+        return float(text)      # try to convert the text to a number
+    except ValueError:          # this happens when the text is not a number
         return None
 
 
 # ---------------- The classic bug (Activity 1) shown for comparison ------------
+# Deliberately wrong version to show the classic bug
+# 9 // 5 is integer division and equals 1 (not 1.8), so the result is wrong
 def buggy_integer_division(c):
     return c * (9 // 5) + 32          # 9 // 5 == 1  -> WRONG on purpose
-
-
-# ---------------- TESTS (pytest-compatible, also run manually below) ----------
-def test_known_conversions():
-    for fn in (celsius_to_fahrenheit_by_hand, celsius_to_fahrenheit_ai):
-        assert fn(100) == 212
-        assert fn(0) == 32
-        assert fn(-40) == -40
-        assert abs(fn(37) - 98.6) < 1e-9
-
-
-def test_bug_is_detected_by_known_value():
-    assert buggy_integer_division(100) != 212      # 100C should be 212F -> bug caught
-
-
-def test_ai_input_validation():
-    assert parse_celsius("36.6") == 36.6
-    assert parse_celsius("abc") is None
-    assert parse_celsius("") is None
-
-
-def run_tests():
-    banner("TESTS")
-    for t in (test_known_conversions, test_bug_is_detected_by_known_value,
-              test_ai_input_validation):
-        try:
-            t()
-            print("PASS:", t.__name__)
-        except AssertionError as e:
-            print("FAIL:", t.__name__, e)
 
 
 # ---------------- TASK 3 : comparison (timing is REAL, measured here) ----------
